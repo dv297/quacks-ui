@@ -1,9 +1,30 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { MoonIcon } from "./icons/Moon";
 import logo from "./logo.svg";
+import Ably from 'ably';
+
+const client = new Ably.Realtime(import.meta.env.VITE_ABLY_KEY);
 
 function App() {
   const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    const channel = client.channels.get('create-game');
+    channel.subscribe((message) => {
+      console.log(message);
+    });
+
+
+    channel.publish("joinGame", {
+      user: 'Daniel Vu',
+    });
+
+    channel.subscribe('newGameId', (newGameIdMessage) => {
+      console.log('newGameId', newGameIdMessage);
+      const gameChannel = client.channels.get(newGameIdMessage.data);
+      gameChannel.publish('arrived', { user: 'Daniel Vu'})
+    })
+  }, []);
 
   function toggleDarkMode() {
     if (
