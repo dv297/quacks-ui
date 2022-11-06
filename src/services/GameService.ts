@@ -2,13 +2,13 @@
 
 const GameService = {
   async getGameId(): Promise<{ data: { gameId: string } }> {
-    const result = await fetch("http://192.168.86.229:3000/games", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
+    const result = await fetch('http://192.168.86.229:3000/games', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
     });
 
     if (!result.ok) {
-      throw new Error("Issue occurred");
+      throw new Error('Issue occurred');
     }
 
     const response = await result.json();

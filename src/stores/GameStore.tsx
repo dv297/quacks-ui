@@ -1,28 +1,40 @@
-import Ably from "ably";
-import create from "zustand";
+import Ably from 'ably';
+import create from 'zustand';
+
+import GameChannelMessengerServiceProvider from '../services/GameChannelMessengerService';
+
+const generateUserId = () => {
+  return 'user-' + Math.random().toString(36).substr(2, 16);
+};
 
 interface GameStoreInterface {
   gameId: string | null;
+  userId: string | null;
   actions: {
     joinGame: (id: string) => void;
   };
 }
 
-const GameStore = create<GameStoreInterface>()((setState) => {
-  const client = new Ably.Realtime(process.env.NEXT_PUBLIC_ABLY_KEY);
+const client = new Ably.Realtime(process.env.NEXT_PUBLIC_ABLY_KEY);
 
+const GameStore = create<GameStoreInterface>()((setState) => {
   return {
     gameId: null,
+    userId: null,
     actions: {
-      joinGame(id) {
-        setState({ gameId: id });
-        const gameChannel = client.channels.get(id);
+      joinGame(gameId) {
+        setState({ gameId });
+        const gameChannel = client.channels.get(gameId);
 
-        gameChannel.subscribe((message) => {
-          console.log(message);
-        });
+        GameChannelMessengerServiceProvider.initialize(gameChannel);
 
-        gameChannel.publish("this is a new message", {});
+        const userId = generateUserId();
+        setState({ userId });
+
+        GameChannelMessengerServiceProvider.instance()?.joinGame(
+          gameId,
+          userId
+        );
       },
     },
   };

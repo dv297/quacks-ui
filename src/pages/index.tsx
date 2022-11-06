@@ -1,16 +1,16 @@
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import Head from "next/head";
-import { useRouter } from "next/router";
+import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import Head from 'next/head';
+import { useRouter } from 'next/router';
 
-import FullScreenLoader from "../components/FullScreenLoader";
-import GameService from "../services/GameService";
+import FullScreenLoader from '../components/FullScreenLoader';
+import GameService from '../services/GameService';
 
 export default function Home() {
   const [hasRequestedGameId, setHasRequestedGameId] = useState(false);
   const router = useRouter();
 
-  const { isFetching } = useQuery(["gameId"], GameService.getGameId, {
+  const { isFetching } = useQuery(['gameId'], GameService.getGameId, {
     enabled: hasRequestedGameId,
     onSuccess(data) {
       router.push(`/${data.data.gameId}/lobby`);
