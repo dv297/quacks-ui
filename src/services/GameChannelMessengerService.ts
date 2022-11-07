@@ -8,15 +8,31 @@ class GameChannelMessengerService {
     this.channel = _channel;
   }
 
-  joinGame(gameId: string, userId: string) {
+  joinGame(userId: string) {
+    console.log('addPlayer');
     this.channel.publish('addPlayer', {
-      user: { username: null, id: userId },
+      user: { name: '', id: userId },
     });
+  }
+
+  updatePlayerName(userId: string, playerName: string) {
+    console.log('updatePlayerName');
+    this.channel.publish('updatePlayerName', {
+      user: { id: userId, name: playerName },
+    });
+  }
+
+  onPlayerListBroadcast(callback: Types.messageCallback<any>) {
+    this.channel.subscribe('broadcastPlayerList', callback);
+  }
+
+  onError(callback: Types.messageCallback<any>) {
+    this.channel.subscribe('error', callback);
   }
 }
 
 class GameChannelMessengerServiceProvider {
-  static gcmService: GameChannelMessengerService;
+  static service: GameChannelMessengerService;
   static channel: RealtimeChannelCallbacks;
 
   static initialize(_channel: RealtimeChannelCallbacks) {
@@ -30,14 +46,16 @@ class GameChannelMessengerServiceProvider {
       );
     }
 
-    if (GameChannelMessengerServiceProvider.gcmService) {
-      return GameChannelMessengerServiceProvider.gcmService;
+    if (GameChannelMessengerServiceProvider.service) {
+      return GameChannelMessengerServiceProvider.service;
     }
 
-    GameChannelMessengerServiceProvider.gcmService =
+    GameChannelMessengerServiceProvider.service =
       new GameChannelMessengerService(
         GameChannelMessengerServiceProvider.channel
       );
+
+    return GameChannelMessengerServiceProvider.service;
   }
 }
 
